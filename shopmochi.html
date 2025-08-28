@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Shop Blox Fruit — Demo (HTML only)</title>
+<style>
+:root{--bg:#071226;--card:#0b1220;--muted:#9aa4b2;--accent:#7c3aed;--danger:#ef4444;--success:#10b981}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,#051021,#071226);color:#eaf2ff;min-height:100vh}
+.wrap{max-width:1100px;margin:20px auto;padding:18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+h1{margin:0;font-size:20px}
+.lead{margin:0;color:var(--muted);font-size:13px}
+.top-actions{display:flex;gap:8px;align-items:center}
+button{cursor:pointer}
+.btn{background:var(--accent);border:none;padding:8px 12px;border-radius:8px;color:white}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--muted)}
+.main{display:grid;grid-template-columns:1fr 360px;gap:18px}
+.panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
+.thumb{height:140px;border-radius:8px;background:linear-gradient(90deg,#061025,#0b1220);display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.title{font-weight:700}
+.meta{color:var(--muted);font-size:13px}
+.price{font-weight:800}
+.actions{display:flex;gap:8px;margin-top:auto}
+input,select,textarea{padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.02);color:inherit;width:100%}
+.small{font-size:13px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{width:92%;max-width:900px;background:#071227;padding:16px;border-radius:10px}
+footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+.badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px}
+@media (max-width:960px){.main{grid-template-columns:1fr}.sidebar{order:2}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">BF</div>
+      <div>
+        <h1>Shop Blox Fruit</h1>
+        <div class="lead">Bán acc Blox Fruit — Demo (localStorage). TikTok: <a id="tiktok-link" href="#" target="_blank" style="color:#ffd880;text-decoration:none">@yourname</a></div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div id="user-area" class="small"></div>
+      <button id="btn-login" class="ghost">Đăng nhập</button>
+      <button id="btn-register" class="ghost">Đăng ký</button>
+      <button id="btn-logout" class="ghost" style="display:none">Đăng xuất</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">Acc Blox Fruit</h2>
+        <div class="small" id="status-count">0 acc trên shop</div>
+      </div>
+
+      <div id="products" class="products"></div>
+
+      <!-- admin panel -->
+      <div id="admin-panel" class="panel" style="margin-top:14px;display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Admin Panel</strong><div class="small muted">Cộng tiền, duyệt nạp, đăng acc</div></div>
+          <div><span class="small muted">Admin</span></div>
+        </div>
+
+        <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <div class="small" style="margin-bottom:6px">Cộng tiền cho user</div>
+            <select id="admin-select-user"></select>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <input id="admin-add-amount" placeholder="Số tiền (VND)" />
+              <button id="admin-add-funds" class="btn">Cộng</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="small" style="margin-bottom:6px">Đăng acc (kèm ảnh & credentials)</div>
+            <input id="admin-acc-title" placeholder="Tiêu đề (ví dụ: Lv 700, Fruit: D)" />
+            <input id="admin-acc-price" placeholder="Giá (số, VND)" style="margin-top:6px"/>
+            <input id="admin-acc-username" placeholder="Acc username (Blox Fruit)" style="margin-top:6px"/>
+            <input id="admin-acc-password" placeholder="Acc password (Blox Fruit)" style="margin-top:6px"/>
+            <textarea id="admin-acc-details" placeholder="Mô tả ngắn" style="margin-top:6px"></textarea>
+            <div style="margin-top:6px">
+              <input type="file" id="admin-acc-image" accept="image/*" />
+            </div>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button id="admin-post-acc" class="btn">Đăng acc</button>
+              <button id="admin-refresh" class="ghost">Làm mới</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-weight:600;margin-bottom:6px">Yêu cầu nạp thẻ (Pending)</div>
+          <div style="max-height:220px;overflow:auto">
+            <table id="admin-recharge-table"><thead><tr><th>User</th><th>Provider</th><th>Serial</th><th>Code</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-weight:600;margin-bottom:6px">Danh sách acc (Admin có thể xóa/sửa)</div>
+          <div style="max-height:200px;overflow:auto">
+            <table id="admin-acc-table"><thead><tr><th>Id</th><th>Tiêu đề</th><th>Giá</th><th>Action</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel sidebar">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Tài khoản</strong></div>
+        <div class="small muted">Thông tin</div>
+      </div>
+      <div id="profile-area" style="margin-top:8px">
+        <div class="small">Bạn chưa đăng nhập.</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Giỏ hàng</strong></div>
+          <div id="cart-count" class="small">0</div>
+        </div>
+        <div id="cart-list" style="margin-top:8px" class="small">Không có sản phẩm</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="btn-checkout" class="btn">Thanh toán</button>
+          <button id="btn-clear-cart" class="ghost">Xóa</button>
+        </div>
+        <div style="margin-top:8px" class="small muted">Thanh toán dùng SỐ DƯ tài khoản (nạp thẻ hoặc admin cộng).</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div style="font-weight:600">Nạp thẻ cào</div>
+        <div class="small muted" style="margin-bottom:6px">Nhập <strong>Serial</strong> + <strong>Code</strong> + giá trị. Nếu hợp lệ tạo yêu cầu pending.</div>
+        <select id="topup-provider" style="margin-top:6px">
+          <option value="viettel">Viettel</option>
+          <option value="vina">VinaPhone</option>
+          <option value="mobi">Mobifone</option>
+        </select>
+        <input id="topup-serial" placeholder="Serial (ví dụ: S1234567)" style="margin-top:6px"/>
+        <input id="topup-code" placeholder="Mã thẻ (code) (ví dụ: CABC123)" style="margin-top:6px"/>
+        <input id="topup-amount" placeholder="Giá trị (VND) - ví dụ 10000" style="margin-top:6px"/>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button id="btn-topup" class="btn">Gửi nạp</button>
+          <button id="btn-topup-check" class="ghost">Kiểm tra (demo)</button>
+        </div>
+        <div class="small muted" style="margin-top:6px">Nếu mã hợp lệ: tạo yêu cầu <strong>pending</strong> — admin duyệt mới cộng tiền.</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div style="font-weight:600">Lịch sử đơn hàng</div>
+        <div id="order-history" class="small" style="margin-top:8px">Đăng nhập để xem lịch sử.</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div style="font-weight:600">Liên hệ</div>
+        <div class="small" style="margin-top:6px">TikTok: <a id="tiktok-show" href="#" target="_blank" style="color:#ffd880;text-decoration:none">@yourname</a></div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>© Demo Shop Blox Fruit — Không dùng production</footer>
+</div>
+
+<!-- modal root -->
+<div id="modal-root" style="display:none"></div>
+
+<script>
+/* ------------------ Storage keys & defaults ------------------ */
+const LS_USERS = 'bf_demo_users_v3';
+const LS_PRODUCTS = 'bf_demo_products_v3';
+const LS_RECHARGES = 'bf_demo_recharges_v3';
+const LS_SESSION = 'bf_demo_session_v3';
+const LS_CART = 'bf_demo_cart_v3';
+
+/* valid topup demo codes include serial+code+amount */
+const VALID_TOPUP_CODES = [
+  { provider:'viettel', serial:'SERI1000-A', code:'VT-CODE-111', amount:10000 },
+  { provider:'vina',   serial:'SERI5000-X', code:'VN-CODE-222', amount:50000 },
+  { provider:'mobi',   serial:'SERI2000-Z', code:'MB-CODE-333', amount:20000 }
+];
+
+const DEFAULT_USERS = [
+  { username:'admin', password:'admin123', fullname:'Administrator', balance:0, role:'admin', orders:[] },
+  { username:'buyer1', password:'password', fullname:'Người Mua 1', balance:100000, role:'user', orders:[] }
+];
+
+const DEFAULT_PRODUCTS = [
+  { id:'bf-1001', title:'Blox Fruit - Lv 500, Fruit: Flame', price:500000, details:'Level 500, fruit Flame', seller:'admin', img:'', acc_username:'bf_acc1', acc_password:'pass1' },
+  { id:'bf-1002', title:'Blox Fruit - Lv 300, Fruit: Light', price:320000, details:'Level 300, fruit Light', seller:'admin', img:'', acc_username:'bf_acc2', acc_password:'pass2' }
+];
+
+/* ------------------ Utility ------------------ */
+const $ = id => document.getElementById(id);
+function load(k, fallback){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch(e){ return fallback; } }
+function save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function genId(pref='id'){ return pref + '-' + Math.random().toString(36).slice(2,9); }
+function fmtVND(n){ return (Number(n)||0).toLocaleString('vi-VN') + ' ₫'; }
+function esc(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
+
+/* ------------------ Initialize storage (demo) ------------------ */
+if(!localStorage.getItem(LS_USERS)) save(LS_USERS, DEFAULT_USERS);
+if(!localStorage.getItem(LS_PRODUCTS)) save(LS_PRODUCTS, DEFAULT_PRODUCTS);
+if(!localStorage.getItem(LS_RECHARGES)) save(LS_RECHARGES, []);
+if(!localStorage.getItem(LS_CART)) save(LS_CART, []);
+
+/* ------------------ State & DOM refs ------------------ */
+let users = load(LS_USERS, []);
+let products = load(LS_PRODUCTS, []);
+let recharges = load(LS_RECHARGES, []);
+let session = load(LS_SESSION, null);
+let cart = load(LS_CART, []);
+
+const productsEl = $('products'), statusCountEl = $('status-count'), userArea = $('user-area');
+const btnLogin = $('btn-login'), btnRegister = $('btn-register'), btnLogout = $('btn-logout');
+const profileArea = $('profile-area');
+const cartList = $('cart-list'), cartCount = $('cart-count'), btnCheckout = $('btn-checkout'), btnClearCart = $('btn-clear-cart');
+const adminPanel = $('admin-panel'), adminSelectUser = $('admin-select-user'), adminAddFunds = $('admin-add-funds'), adminAddAmount = $('admin-add-amount');
+const adminAccTitle = $('admin-acc-title'), adminAccPrice = $('admin-acc-price'), adminAccDetails = $('admin-acc-details');
+const adminAccUsername = $('admin-acc-username'), adminAccPassword = $('admin-acc-password'), adminAccImage = $('admin-acc-image');
+const adminPostAcc = $('admin-post-acc'), adminRefresh = $('admin-refresh');
+const adminRechargeTbody = document.querySelector('#admin-recharge-table tbody');
+const adminAccTbody = document.querySelector('#admin-acc-table tbody');
+const topupProvider = $('topup-provider'), topupSerial = $('topup-serial'), topupCode = $('topup-code'), topupAmount = $('topup-amount');
+const btnTopup = $('btn-topup'), btnTopupCheck = $('btn-topup-check');
+const modalRoot = $('modal-root');
+const orderHistoryEl = $('order-history');
+
+/* ------------------ Render functions ------------------ */
+function renderProducts(){
+  products = load(LS_PRODUCTS, []);
+  productsEl.innerHTML = '';
+  if(!products || products.length === 0){ productsEl.innerHTML = '<div class="small">Chưa có acc nào trên shop.</div>'; }
+  products.forEach(p=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="thumb">${p.img?'<img src="'+esc(p.img)+'">':'<div style="padding:12px;color:var(--muted)">No image</div>'}</div>
+      <div class="title">${esc(p.title)}</div>
+      <div class="meta">${esc(p.details)}</div>
+      <div class="price">${fmtVND(p.price)}</div>
+      <div class="actions">
+        <button class="ghost" data-act="view" data-id="${p.id}">Xem</button>
+        <button class="btn" data-act="buy" data-id="${p.id}">Mua</button>
+      </div>`;
+    productsEl.appendChild(card);
+  });
+  statusCountEl.textContent = products.length + ' acc trên shop';
+}
+
+function renderProfile(){
+  users = load(LS_USERS, []);
+  session = load(LS_SESSION, null);
+  if(session && session.username){
+    const u = users.find(x=>x.username === session.username);
+    userArea.innerHTML = `Xin chào, <strong>${esc(u.fullname||u.username)}</strong>`;
+    btnLogin.style.display='none'; btnRegister.style.display='none'; btnLogout.style.display='inline-block';
+    profileArea.innerHTML = `<div><strong>${esc(u.fullname||u.username)}</strong></div>
+      <div class="small">Số dư: <strong>${fmtVND(u.balance)}</strong></div>
+      <div class="small">Vai trò: ${esc(u.role||'user')}</div>
+      <div style="margin-top:8px"><button id="btn-topup-local" class="ghost">Nạp thử (mô phỏng)</button></div>`;
+    $('btn-topup-local').onclick = ()=>{
+      const amt = Number(prompt('Nhập số tiền nạp thử (VND):')||0);
+      if(!amt || amt<=0) return alert('Số tiền không hợp lệ');
+      u.balance = Number(u.balance||0) + amt; save(LS_USERS, users); renderProfile(); alert('Đã cộng ' + fmtVND(amt));
+    };
+  } else {
+    userArea.innerHTML=''; btnLogin.style.display='inline-block'; btnRegister.style.display='inline-block'; btnLogout.style.display='none';
+    profileArea.innerHTML='<div class="small">Bạn chưa đăng nhập.</div>';
+  }
+  renderAdminArea();
+  renderOrderHistory();
+}
+
+function renderCart(){
+  cart = load(LS_CART, []);
+  if(!cart || cart.length===0){ cartList.innerHTML='<div class="small">Không có sản phẩm</div>'; cartCount.textContent='0'; return; }
+  cartList.innerHTML=''; let total=0;
+  cart.forEach(item=>{
+    total += item.price * item.qty;
+    const node = document.createElement('div'); node.className='small'; node.style.display='flex'; node.style.justifyContent='space-between'; node.style.marginBottom='6px';
+    node.innerHTML = `<div>${esc(item.title)} x${item.qty}</div><div>${fmtVND(item.price*item.qty)}</div>`;
+    cartList.appendChild(node);
+  });
+  const tot = document.createElement('div'); tot.style.marginTop='8px'; tot.innerHTML = `<div class="small"><strong>Tổng: ${fmtVND(total)}</strong></div>`;
+  cartList.appendChild(tot); cartCount.textContent = cart.reduce((s,i)=>s+i.qty,0);
+}
+
+function renderAdminArea(){
+  session = load(LS_SESSION, null);
+  users = load(LS_USERS, []); products = load(LS_PRODUCTS, []); recharges = load(LS_RECHARGES, []);
+  if(session && session.username){
+    const u = users.find(x=>x.username===session.username);
+    if(u && u.role === 'admin'){
+      adminPanel.style.display='block';
+      adminSelectUser.innerHTML = users.map(us=>`<option value="${esc(us.username)}">${esc(us.username)} (${fmtVND(us.balance||0)})</option>`).join('');
+      // recharges list
+      adminRechargeTbody.innerHTML='';
+      recharges.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${esc(r.username)}</td><td>${esc(r.provider)}</td><td>${esc(r.serial)}</td><td>${esc(r.code)}</td><td>${fmtVND(r.amount)}</td><td>${esc(r.status)}</td>
+          <td><button class="ghost" data-act="approve" data-id="${r.id}">Approve</button> <button class="ghost" data-act="reject" data-id="${r.id}">Reject</button></td>`;
+        adminRechargeTbody.appendChild(tr);
+      });
+      // products table
+      adminAccTbody.innerHTML='';
+      products.forEach(p=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td style="width:160px">${esc(p.id)}</td><td>${esc(p.title)}</td><td style="width:120px">${fmtVND(p.price)}</td>
+          <td style="width:140px"><button class="ghost" data-act="edit" data-id="${p.id}">Sửa</button> <button class="ghost" data-act="del" data-id="${p.id}">Xóa</button></td>`;
+        adminAccTbody.appendChild(tr);
+      });
+      return;
+    }
+  }
+  adminPanel.style.display='none';
+}
+
+/* ------------------ Order history for user ------------------ */
+function renderOrderHistory(){
+  session = load(LS_SESSION, null);
+  if(!session){ orderHistoryEl.innerHTML = 'Đăng nhập để xem lịch sử.'; return; }
+  const usersAll = load(LS_USERS, []);
+  const u = usersAll.find(x=>x.username === session.username);
+  if(!u || !u.orders || u.orders.length===0){ orderHistoryEl.innerHTML = '<div class="small">Chưa có đơn hàng.</div>'; return; }
+  orderHistoryEl.innerHTML = '';
+  u.orders.forEach(o=>{
+    const div = document.createElement('div'); div.className='small'; div.style.marginBottom='8px';
+    div.innerHTML = `<div><strong>${esc(o.title)}</strong> — ${fmtVND(o.price)}</div>
+      <div class="small muted">Mua: ${new Date(o.boughtAt).toLocaleString()}</div>
+      <div style="margin-top:6px">Acc: <strong>${esc(o.acc_username)}</strong> • Mật khẩu: <strong>${esc(o.acc_password)}</strong></div>`;
+    orderHistoryEl.appendChild(div);
+  });
+}
+
+/* ------------------ Product actions ------------------ */
+productsEl.addEventListener('click', (e)=>{
+  const act = e.target.getAttribute('data-act'), id = e.target.getAttribute('data-id');
+  if(!act) return;
+  if(act === 'view') openProductModal(id);
+  if(act === 'buy') addProductToCart(id);
+});
+
+function addProductToCart(id){
+  const prods = load(LS_PRODUCTS, []);
+  const p = prods.find(x=>x.id===id); if(!p) return alert('Sản phẩm không tồn tại.');
+  let c = load(LS_CART, []); const found = c.find(x=>x.id===id);
+  if(found) found.qty += 1; else c.push({ id:p.id, title:p.title, price:p.price, qty:1 });
+  save(LS_CART, c); renderCart(); alert('Đã thêm vào giỏ');
+}
+
+function openProductModal(id){
+  const prods = load(LS_PRODUCTS, []);
+  const p = prods.find(x=>x.id===id); if(!p) return alert('Sản phẩm không tồn tại.');
+  modalRoot.style.display='block';
+  modalRoot.innerHTML = `<div class="modal-backdrop" id="mdp"><div class="modal">
+    <h3>${esc(p.title)}</h3>
+    <div class="small muted">ID: ${esc(p.id)} • Seller: ${esc(p.seller)}</div>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <div style="flex:1"><div class="thumb" style="height:180px">${p.img?'<img src="'+esc(p.img)+'">':'<div style="padding:20px;color:var(--muted)">No image</div>'}</div></div>
+      <div style="width:340px">
+        <div class="meta">${esc(p.details)}</div>
+        <div style="margin-top:10px" class="price">${fmtVND(p.price)}</div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="view-add" class="btn">Thêm vào giỏ</button>
+          <button id="view-buy" class="btn">Mua ngay</button>
+          <button id="view-close" class="ghost">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div></div>`;
+  $('view-close').onclick = closeModal;
+  $('mdp').onclick = (e)=>{ if(e.target.id==='mdp') closeModal(); };
+  $('view-add').onclick = ()=>{ addProductToCart(id); closeModal(); };
+  $('view-buy').onclick = ()=>{ buyNow(id); };
+}
+
+function closeModal(){ modalRoot.style.display='none'; modalRoot.innerHTML=''; }
+
+/* ------------------ Buy logic ------------------ */
+function buyNow(id){
+  session = load(LS_SESSION, null);
+  if(!session) return alert('Bạn cần đăng nhập để mua.');
+  const allUsers = load(LS_USERS, []);
+  const buyer = allUsers.find(x=>x.username === session.username); if(!buyer) return alert('Người dùng không tồn tại.');
+  let prods = load(LS_PRODUCTS, []);
+  const p = prods.find(x=>x.id===id); if(!p) return alert('Sản phẩm không tồn tại.');
+  if(Number(buyer.balance) < Number(p.price)) return alert('Số dư không đủ. Vui lòng nạp thêm.');
+  if(!confirm('Xác nhận mua "' + p.title + '" với giá ' + fmtVND(p.price) + '?')) return;
+  // Deduct and remove product; store order with credentials and show immediately
+  buyer.balance = Number(buyer.balance) - Number(p.price);
+  prods = prods.filter(x=>x.id !== id);
+  buyer.orders = buyer.orders || [];
+  const order = { orderId: genId('ord'), productId: p.id, title: p.title, price: p.price, boughtAt: Date.now(), acc_username: p.acc_username || '', acc_password: p.acc_password || '' };
+  buyer.orders.unshift(order);
+  save(LS_PRODUCTS, prods);
+  save(LS_USERS, allUsers);
+  save(LS_CART, []);
+  alert('Mua thành công! Thông tin acc sẽ hiện ngay.');
+  renderAll(); closeModal();
+  showOrderCredentials(order);
+}
+
+function showOrderCredentials(order){
+  modalRoot.style.display='block';
+  modalRoot.innerHTML = `<div class="modal-backdrop" id="mdord"><div class="modal">
+    <h3>Đơn hàng ${esc(order.orderId)}</h3>
+    <div class="small muted">Sản phẩm: ${esc(order.title)} • Giá: ${fmtVND(order.price)}</div>
+    <div style="margin-top:12px">
+      <div class="small">Tài khoản Blox Fruit: <strong>${esc(order.acc_username)}</strong></div>
+      <div class="small">Mật khẩu: <strong>${esc(order.acc_password)}</strong></div>
+      <div style="margin-top:8px" class="small muted">Lưu lại thông tin này. Trong bản demo, admin nhập username/password khi đăng acc.</div>
+    </div>
+    <div style="margin-top:12px"><button id="ord-close" class="btn">Đã lưu</button></div>
+  </div></div>`;
+  $('ord-close').onclick = closeModal;
+  $('mdord').onclick = (e)=>{ if(e.target.id==='mdord') closeModal(); };
+}
+
+/* ------------------ Cart checkout ------------------ */
+$('btn-checkout').onclick = ()=>{
+  session = load(LS_SESSION, null); if(!session) return alert('Bạn cần đăng nhập để thanh toán.');
+  const allUsers = load(LS_USERS, []);
+  const buyer = allUsers.find(x=>x.username === session.username); if(!buyer) return alert('Người dùng không tồn tại');
+  const c = load(LS_CART, []); if(!c || c.length===0) return alert('Giỏ hàng trống');
+  const total = c.reduce((s,i)=>s + i.price * i.qty, 0);
+  if(Number(buyer.balance) < total) return alert('Số dư không đủ.');
+  if(!confirm('Xác nhận thanh toán: ' + fmtVND(total) + '?')) return;
+  let prods = load(LS_PRODUCTS, []);
+  c.forEach(ci=>{
+    const p = prods.find(x=>x.id === ci.id);
+    if(p){
+      buyer.orders = buyer.orders || [];
+      buyer.orders.unshift({ orderId: genId('ord'), productId:p.id, title:p.title, price:p.price*ci.qty, boughtAt:Date.now(), acc_username:p.acc_username||'', acc_password:p.acc_password||'' });
+      prods = prods.filter(x=>x.id !== p.id);
+    }
+  });
+  buyer.balance = Number(buyer.balance) - total;
+  save(LS_PRODUCTS, prods);
+  save(LS_USERS, allUsers);
+  save(LS_CART, []);
+  alert('Thanh toán thành công. Kiểm tra lịch sử đơn hàng để lấy tài khoản.');
+  renderAll();
+};
+
+$('btn-clear-cart').onclick = ()=>{ if(confirm('Xóa toàn bộ giỏ hàng?')){ save(LS_CART, []); renderCart(); } };
+
+/* ------------------ Auth: register/login/logout ------------------ */
+$('btn-register').onclick = openRegisterModal;
+$('btn-login').onclick = openLoginModal;
+$('btn-logout').onclick = ()=>{ if(confirm('Bạn muốn đăng xuất?')){ localStorage.removeItem(LS_SESSION); renderAll(); } };
+
+function openRegisterModal(){
+  modalRoot.style.display='block';
+  modalRoot.innerHTML = `<div class="modal-backdrop" id="mdreg"><div class="modal">
+    <h3>Đăng ký</h3>
+    <div style="margin-top:8px">
+      <input id="reg-username" placeholder="Tên đăng nhập" /><div style="height:8px"></div>
+      <input id="reg-fullname" placeholder="Họ tên" /><div style="height:8px"></div>
+      <input id="reg-pass" placeholder="Mật khẩu" type="password" /><div style="height:8px"></div>
+      <input id="reg-pass2" placeholder="Nhập lại mật khẩu" type="password" /><div style="height:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button id="reg-submit" class="btn">Tạo tài khoản</button>
+        <button id="reg-cancel" class="ghost">Hủy</button>
+      </div>
+      <div style="margin-top:8px" class="small muted">Người dùng mới được tặng <strong>1.000 ₫</strong>.</div>
+    </div>
+  </div></div>`;
+  $('reg-cancel').onclick = closeModal; $('mdreg').onclick = (e)=>{ if(e.target.id === 'mdreg') closeModal(); };
+  $('reg-submit').onclick = ()=>{
+    const username = $('reg-username').value.trim(); const fullname = $('reg-fullname').value.trim() || username;
+    const pass = $('reg-pass').value; const pass2 = $('reg-pass2').value;
+    if(!username || !pass) return alert('Nhập tên đăng nhập và mật khẩu.');
+    if(pass !== pass2) return alert('Mật khẩu không khớp.');
+    const allUsers = load(LS_USERS, []);
+    if(allUsers.find(u=>u.username === username)) return alert('Tên đăng nhập đã tồn tại.');
+    allUsers.push({ username, password: pass, fullname, balance: 1000, role: 'user', orders: [] });
+    save(LS_USERS, allUsers);
+    alert('Đã đăng ký. Bạn được tặng 1.000 ₫.');
+    closeModal();
+    renderAll();
+  };
+}
+
+function openLoginModal(){
+  modalRoot.style.display='block';
+  modalRoot.innerHTML = `<div class="modal-backdrop" id="mdlogin"><div class="modal">
+    <h3>Đăng nhập</h3>
+    <div style="margin-top:8px">
+      <input id="login-username" placeholder="Tên đăng nhập" /><div style="height:8px"></div>
+      <input id="login-pass" placeholder="Mật khẩu" type="password" /><div style="height:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button id="login-submit" class="btn">Đăng nhập</button>
+        <button id="login-cancel" class="ghost">Hủy</button>
+      </div>
+    </div>
+  </div></div>`;
+  $('login-cancel').onclick = closeModal; $('mdlogin').onclick = (e)=>{ if(e.target.id === 'mdlogin') closeModal(); };
+  $('login-submit').onclick = ()=>{
+    const username = $('login-username').value.trim(); const pass = $('login-pass').value;
+    const allUsers = load(LS_USERS, []);
+    // VALIDATE credentials only — do not expose user lists in UI
+    const u = allUsers.find(x=>x.username === username && x.password === pass);
+    if(!u) return alert('Sai tên đăng nhập hoặc mật khẩu.');
+    save(LS_SESSION, { username: u.username, ts: Date.now() });
+    closeModal(); renderAll();
+  };
+}
+
+/* ------------------ Topup (serial+code) ------------------ */
+$('btn-topup').onclick = ()=>{
+  const provider = topupProvider.value; const serial = topupSerial.value.trim(); const code = topupCode.value.trim(); const amount = Number(topupAmount.value.trim()||0);
+  if(!serial || !code || !amount) return alert('Nhập serial, code và giá trị.');
+  const found = VALID_TOPUP_CODES.find(x => x.provider === provider && x.serial === serial && x.code === code && Number(x.amount) === Number(amount));
+  if(!found){ alert('Mã thẻ hoặc serial không hợp lệ. Không tạo yêu cầu.'); return; }
+  session = load(LS_SESSION, null); if(!session) return alert('Bạn cần đăng nhập để nạp.');
+  const rec = { id: genId('top'), username: session.username, provider, serial, code, amount: Number(amount), status: 'pending', createdAt: Date.now() };
+  const all = load(LS_RECHARGES, []); all.unshift(rec); save(LS_RECHARGES, all);
+  alert('Mã hợp lệ. Yêu cầu nạp đã tạo và chờ admin duyệt.');
+  topupSerial.value=''; topupCode.value=''; topupAmount.value='';
+  renderAll();
+};
+
+$('btn-topup-check').onclick = ()=>{
+  const provider = topupProvider.value; const serial = topupSerial.value.trim(); const code = topupCode.value.trim(); const amount = Number(topupAmount.value.trim()||0);
+  if(!serial || !code || !amount) return alert('Nhập serial, code và giá trị.');
+  const found = VALID_TOPUP_CODES.find(x => x.provider === provider && x.serial === serial && x.code === code && Number(x.amount) === Number(amount));
+  if(found) alert('Mã hợp lệ (demo). Khi gửi sẽ tạo yêu cầu pending.');
+  else alert('Mã không chính xác.');
+};
+
+/* ------------------ Admin: approve/reject recharges ------------------ */
+document.querySelector('#admin-recharge-table tbody').addEventListener('click', (e)=>{
+  const act = e.target.getAttribute('data-act'); const id = e.target.getAttribute('data-id'); if(!act) return;
+  let allRe = load(LS_RECHARGES, []); const r = allRe.find(x=>x.id === id); if(!r) return alert('Không tìm thấy yêu cầu.');
+  const sess = load(LS_SESSION, null); if(!sess) return alert('Chỉ admin có thể xử lý.');
+  const admin = load(LS_USERS, []).find(x=>x.username === sess.username);
+  if(!admin || admin.role !== 'admin') return alert('Bạn không có quyền.');
+  if(act === 'approve'){
+    const allUsers = load(LS_USERS, []); const u = allUsers.find(x=>x.username === r.username); if(!u) return alert('Người dùng không tồn tại.');
+    u.balance = Number(u.balance || 0) + Number(r.amount); r.status = 'approved'; r.processedAt = Date.now();
+    save(LS_USERS, allUsers); save(LS_RECHARGES, allRe); alert('Đã duyệt và cộng ' + fmtVND(r.amount) + ' cho ' + r.username); renderAll();
+  } else if(act === 'reject'){
+    if(!confirm('Bạn muốn từ chối yêu cầu này?')) return;
+    r.status = 'rejected'; r.processedAt = Date.now(); save(LS_RECHARGES, allRe); alert('Đã từ chối yêu cầu.'); renderAll();
+  }
+});
+
+/* ------------------ Admin: add funds, post acc, manage acc ------------------ */
+$('admin-add-funds').onclick = ()=>{
+  const sess = load(LS_SESSION, null); if(!sess) return alert('Chỉ admin');
+  const admin = load(LS_USERS, []).find(x=>x.username === sess.username); if(!admin || admin.role !== 'admin') return alert('Bạn không có quyền.');
+  const uname = adminSelectUser.value; const amt = Number(adminAddAmount.value || 0); if(!uname || !amt || amt <= 0) return alert('Nhập số tiền hợp lệ.');
+  const allUsers = load(LS_USERS, []); const u = allUsers.find(x=>x.username === uname); if(!u) return alert('Người dùng không tồn tại.');
+  u.balance = Number(u.balance || 0) + amt; save(LS_USERS, allUsers); adminAddAmount.value=''; alert('Đã cộng ' + fmtVND(amt) + ' cho ' + uname); renderAll();
+};
+
+$('admin-post-acc').onclick = ()=>{
+  const sess = load(LS_SESSION, null); if(!sess) return alert('Chỉ admin');
+  const admin = load(LS_USERS, []).find(x=>x.username === sess.username); if(!admin || admin.role !== 'admin') return alert('Bạn không có quyền.');
+  const title = adminAccTitle.value.trim(); const price = Number(adminAccPrice.value.trim() || 0); const details = adminAccDetails.value.trim();
+  const accU = adminAccUsername.value.trim(); const accP = adminAccPassword.value.trim();
+  if(!title || !price || !accU || !accP) return alert('Nhập đầy đủ tiêu đề, giá, username và password.');
+  const file = adminAccImage.files && adminAccImage.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(evt){
+      saveNewProduct(title, price, details, admin.username, evt.target.result, accU, accP);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveNewProduct(title, price, details, admin.username, '', accU, accP);
+  }
+};
+
+function saveNewProduct(title, price, details, seller, imgData, accU, accP){
+  const all = load(LS_PRODUCTS, []); const id = genId('bf');
+  all.unshift({ id, title, price, details, seller, img: imgData, acc_username: accU, acc_password: accP });
+  save(LS_PRODUCTS, all);
+  adminAccTitle.value = adminAccPrice.value = adminAccDetails.value = adminAccUsername.value = adminAccPassword.value = ''; adminAccImage.value = '';
+  alert('Đã đăng acc lên shop.');
+  renderAll();
+}
+
+$('admin-refresh').onclick = ()=>{ renderAll(); alert('Làm mới xong'); };
+
+/* admin acc table actions */
+document.querySelector('#admin-acc-table tbody').addEventListener('click', (e)=>{
+  const act = e.target.getAttribute('data-act'); const id = e.target.getAttribute('data-id'); if(!act) return;
+  let prods = load(LS_PRODUCTS, []); const p = prods.find(x=>x.id === id); if(!p) return alert('Không tìm thấy');
+  const sess = load(LS_SESSION, null); const admin = load(LS_USERS, []).find(x=>x.username === sess?.username);
+  if(!admin || admin.role !== 'admin') return alert('Bạn không có quyền.');
+  if(act === 'del'){ if(!confirm('Xóa sản phẩm này?')) return; prods = prods.filter(x=>x.id !== id); save(LS_PRODUCTS, prods); renderAll(); }
+  else if(act === 'edit'){
+    const nt = prompt('Sửa tiêu đề', p.title) || p.title;
+    const np = Number(prompt('Sửa giá (số)', p.price) || p.price);
+    const nd = prompt('Sửa chi tiết', p.details) || p.details;
+    p.title = nt; p.price = np; p.details = nd; save(LS_PRODUCTS, prods); renderAll();
+  }
+});
+
+/* ------------------ Render all ------------------ */
+function renderAll(){ renderProducts(); renderProfile(); renderCart(); renderAdminArea(); renderOrderHistory(); }
+renderAll();
+
+/* ------------------ Storage change across tabs ------------------ */
+window.addEventListener('storage', (e)=>{ if([LS_USERS,LS_PRODUCTS,LS_RECHARGES,LS_CART,LS_SESSION].includes(e.key)) renderAll(); });
+
+</script>
+</body>
+</html>
